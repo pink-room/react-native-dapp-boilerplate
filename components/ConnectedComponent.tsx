@@ -39,7 +39,8 @@ const ConnectedComponent = ({ account, connector }: OwnProps) => {
   const [ingredient, setIngredient] = useState('')
   const [jars, setJars] = useState<Jar[]>()
 
-  const ALCHEMY_URL = 'https://eth-goerli.alchemyapi.io/v2/i-MBCd60cuXWyU7GEZqRV0vEujw1ygiT';
+  // Replace this by your web3 node URL. We used and recommend Alchemy
+  const ALCHEMY_URL = 'WEB3_NODE_URL';
 
   const web3 = new Web3(ALCHEMY_URL);
 
