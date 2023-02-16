@@ -1,13 +1,12 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text } from 'react-native'
+import React from 'react';
+import {SafeAreaView, StyleSheet, Text} from 'react-native';
 
 export default function App() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text>Hello World</Text>
-      </SafeAreaView>
-    )
-  
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text>Hello World</Text>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -17,4 +16,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+  maxWidth: {
+    maxWidth: 250,
+  },
+  connectedContainer: {
+    flexDirection: 'row',
+  },
+  connectedContent: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+});
