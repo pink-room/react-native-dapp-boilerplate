@@ -1,94 +1,81 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Image, View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React, {useState, useEffect, useCallback} from 'react';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Image, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
-import { useWalletConnect } from '@walletconnect/react-native-dapp'
+import {useWalletConnect} from '@walletconnect/react-native-dapp';
 
-import ConnectedComponent from './components/ConnectedComponent'
+import ConnectedComponent from './components/ConnectedComponent';
 
 export default function App() {
+  const [account, setAccount] = useState('NOT CONNECTED');
 
-  const [account, setAccount] = useState('NOT CONNECTED')
-
-  const connector = useWalletConnect()
+  const connector = useWalletConnect();
 
   const connectWallet = useCallback(() => {
-    return connector.connect()
-  }, [connector])
+    return connector.connect();
+  }, [connector]);
 
   useEffect(() => {
     if (connector.connected && account === 'NOT CONNECTED') {
-      setAccount(connector.accounts[0])
+      setAccount(connector.accounts[0]);
     }
-  }, [connector.connected, account])
-
+  }, [connector.connected, account, connector.accounts]);
 
   const shortenAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(
       address.length - 4,
-      address.length
-    )}`
-  }
+      address.length,
+    )}`;
+  };
 
   const killSession = useCallback(() => {
-    return connector.killSession()
-  }, [connector])
+    return connector.killSession();
+  }, [connector]);
 
-  
-    return (
-      <SafeAreaProvider style={styles.container}>
-
-        {!connector.connected && (
-          <>
-            <Image
-              source={require('./assets/images/peanut_butter.png')}
-            ></Image>
-            <View style={styles.mainContainer}>
-              <View style={{ maxWidth: 250 }}>
-                <Text style={styles.title}>Welcome to</Text>
-                <Text style={[styles.title, styles.bold]}>Whip & Slip</Text>
-              </View>
+  return (
+    <SafeAreaProvider style={styles.container}>
+      {!connector.connected && (
+        <>
+          <Image source={require('./assets/images/peanut_butter.png')} />
+          <View style={styles.mainContainer}>
+            <View style={styles.maxWidth}>
+              <Text style={styles.title}>Welcome to</Text>
+              <Text style={[styles.title, styles.bold]}>Whip & Slip</Text>
+            </View>
+            <TouchableOpacity
+              onPress={connectWallet}
+              style={styles.buttonStyle}>
+              <Text style={styles.buttonTextStyle}>Connect a Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+      {!!connector.connected && (
+        <>
+          <View style={styles.connectedContainer}>
+            <View>
+              <Image source={require('./assets/images/peanut_butter.png')} />
+            </View>
+            <View style={styles.connectedContent}>
+              <Text style={[styles.userAccount, styles.bold]}>Account</Text>
+              <Text style={[styles.userAccount]}>
+                {shortenAddress(account)}
+              </Text>
               <TouchableOpacity
-                onPress={connectWallet}
-                style={styles.buttonStyle}
-              >
-                <Text style={styles.buttonTextStyle}>Connect a Wallet</Text>
+                onPress={killSession}
+                style={styles.buttonStyle}>
+                <Text style={styles.buttonTextStyle}>Kill session</Text>
               </TouchableOpacity>
             </View>
-          </>
-        )}
-        {!!connector.connected && (
-          <>
-            <View style={{ flexDirection: 'row' }}>
-              <View>
-                <Image
-                  source={require('./assets/images/peanut_butter.png')}
-                ></Image>
-              </View>
-              <View
-                style={{ justifyContent: 'center', alignItems: 'flex-start' }}
-              >
-                <Text style={[styles.userAccount, styles.bold]}>Account</Text>
-                <Text style={[styles.userAccount]}>
-                  {shortenAddress(account)}
-                </Text>
-                <TouchableOpacity
-                  onPress={killSession}
-                  style={styles.buttonStyle}
-                >
-                  <Text style={styles.buttonTextStyle}>Kill session</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+          </View>
 
-            <View style={styles.mainContainer}>
-              <ConnectedComponent account={account} connector={connector} />
-            </View>
-          </>
-        )}
-      </SafeAreaProvider>
-    )
-  
+          <View style={styles.mainContainer}>
+            <ConnectedComponent account={account} connector={connector} />
+          </View>
+        </>
+      )}
+    </SafeAreaProvider>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -136,4 +123,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '500',
   },
-})
+  maxWidth: {
+    maxWidth: 250,
+  },
+  connectedContainer: {
+    flexDirection: 'row',
+  },
+  connectedContent: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+});
