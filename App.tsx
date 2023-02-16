@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Image, View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
@@ -12,9 +12,9 @@ export default function App() {
 
   const connector = useWalletConnect()
 
-const connectWallet = React.useCallback(() => {
-  return connector.connect()
-}, [connector])
+  const connectWallet = useCallback(() => {
+    return connector.connect()
+  }, [connector])
 
   useEffect(() => {
     if (connector.connected && account === 'NOT CONNECTED') {
@@ -30,7 +30,7 @@ const connectWallet = React.useCallback(() => {
     )}`
   }
 
-  const killSession = React.useCallback(() => {
+  const killSession = useCallback(() => {
     return connector.killSession()
   }, [connector])
 

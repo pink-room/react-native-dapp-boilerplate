@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 
 const Card = (props: any) => {
     return (
-    <View style={[styles.card, styles.shadow, styles.alignCenter]}>
+      <View style={[styles.card, styles.shadow, styles.alignCenter]}>
         {props.children}
       </View>
     )
