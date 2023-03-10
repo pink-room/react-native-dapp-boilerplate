@@ -41,7 +41,7 @@ const COLORS = [
 ];
 
 const ConnectedComponent = ({account, connector}: OwnProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [peanutButterContract, setPeanutButterContract] = useState<Contract>();
   const [ingredients, setIngredients] = useState<string[]>();
   const [ingredient, setIngredient] = useState('');
@@ -71,6 +71,14 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const parseExtraIngredients = (extraIngredients: string) => {
+    let splittedIngredients = extraIngredients
+      .split(',')
+      .filter((item: string) => item !== '')
+      .map(item => item.trim());
+    return splittedIngredients;
+  };
+
   const getJars = async () => {
     setIsLoading(true);
     if (peanutButterContract) {
@@ -92,23 +100,12 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
     setIsLoading(false);
   };
 
-  const parseExtraIngredients = (extraIngredients: string) => {
-    let splittedIngredients = extraIngredients
-      .split(',')
-      .filter((item: string) => item !== '')
-      .map(item => item.trim());
-    return splittedIngredients;
-  };
-
   const createJar = async () => {
     setIsLoading(true);
-    console.log(ingredient);
     if (peanutButterContract) {
       const encodedRequest = await peanutButterContract.methods
         .create([ingredient])
         .encodeABI();
-
-      console.log(encodedRequest);
 
       const transactionData: ITxData = {
         from: account,
@@ -117,10 +114,7 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
         data: encodedRequest,
       };
 
-      console.log(transactionData);
-
-      const tx = await connector.sendTransaction(transactionData);
-      console.log(tx);
+      await connector.sendTransaction(transactionData);
     }
     setIsLoading(false);
   };

@@ -7,12 +7,17 @@ import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import ConnectedComponent from './components/ConnectedComponent';
 
 export default function App() {
-  const [account, setAccount] = useState('NOT CONNECTED');
+  const [account, setAccount] = useState<string>('NOT CONNECTED');
 
   const connector = useWalletConnect();
 
   const connectWallet = useCallback(() => {
     return connector.connect();
+  }, [connector]);
+
+  const killSession = useCallback(() => {
+    connector.killSession();
+    setAccount('NOT CONNECTED');
   }, [connector]);
 
   useEffect(() => {
@@ -27,11 +32,6 @@ export default function App() {
       address.length,
     )}`;
   };
-
-  const killSession = useCallback(() => {
-    connector.killSession();
-    setAccount('NOT CONNECTED');
-  }, [connector]);
 
   return (
     <SafeAreaProvider style={styles.container}>
