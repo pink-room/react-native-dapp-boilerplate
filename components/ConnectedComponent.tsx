@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import Web3 from 'web3';
 import {Picker} from '@react-native-picker/picker';
@@ -40,6 +41,7 @@ const COLORS = [
 ];
 
 const ConnectedComponent = ({account, connector}: OwnProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [peanutButterContract, setPeanutButterContract] = useState<Contract>();
   const [ingredients, setIngredients] = useState<string[]>();
   const [ingredient, setIngredient] = useState('');
@@ -52,14 +54,25 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
   const web3 = new Web3(ALCHEMY_URL);
 
   useEffect(() => {
+    async function getIngredients(contract: Contract) {
+      const ingredientList = await contract?.methods
+        .getExtraIngredients()
+        .call();
+      setIngredients(ingredientList);
+    }
     async function load() {
+      setIsLoading(true);
       const contract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
       setPeanutButterContract(contract);
+      getIngredients(contract);
+      setIsLoading(false);
     }
     load();
-  }, [web3.eth.Contract]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getJars = async () => {
+    setIsLoading(true);
     if (peanutButterContract) {
       const fetchedJars = await peanutButterContract.methods.getJars().call();
 
@@ -76,14 +89,7 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
         });
       setJars(parsedJars);
     }
-  };
-
-  const getIngredients = async () => {
-    const ingredientList = await peanutButterContract?.methods
-      .getExtraIngredients()
-      .call();
-    console.log(ingredientList);
-    setIngredients(ingredientList);
+    setIsLoading(false);
   };
 
   const parseExtraIngredients = (extraIngredients: string) => {
@@ -95,10 +101,14 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
   };
 
   const createJar = async () => {
+    setIsLoading(true);
+    console.log(ingredient);
     if (peanutButterContract) {
       const encodedRequest = await peanutButterContract.methods
-        .create(ingredient)
+        .create([ingredient])
         .encodeABI();
+
+      console.log(encodedRequest);
 
       const transactionData: ITxData = {
         from: account,
@@ -107,11 +117,17 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
         data: encodedRequest,
       };
 
-      await connector.sendTransaction(transactionData);
+      console.log(transactionData);
+
+      const tx = await connector.sendTransaction(transactionData);
+      console.log(tx);
     }
+    setIsLoading(false);
   };
 
-  return (
+  return isLoading ? (
+    <ActivityIndicator />
+  ) : (
     <View style={styles.mainView}>
       <Card>
         <TouchableOpacity onPress={getJars}>
@@ -119,12 +135,12 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
         </TouchableOpacity>
       </Card>
 
-      <Card>
-        <TouchableOpacity onPress={getIngredients} style={styles.jarButton}>
-          <Text style={styles.buttonTextStyle}>Get Ingredients</Text>
-        </TouchableOpacity>
+      {ingredients && (
+        <Card>
+          <TouchableOpacity onPress={createJar} style={styles.jarButton}>
+            <Text style={styles.buttonTextStyle}>Create Jar</Text>
+          </TouchableOpacity>
 
-        {ingredients && (
           <Picker
             selectedValue={ingredient}
             onValueChange={itemValue => setIngredient(itemValue)}
@@ -133,24 +149,6 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
               return <Picker.Item key={index} label={item} value={item} />;
             })}
           </Picker>
-        )}
-      </Card>
-      {ingredients != null && ingredients.length !== 0 && (
-        <Card>
-          <TouchableOpacity onPress={createJar} style={styles.jarButton}>
-            <Text style={styles.buttonTextStyle}>Create Jar</Text>
-          </TouchableOpacity>
-
-          {ingredients && (
-            <Picker
-              selectedValue={ingredient}
-              onValueChange={itemValue => setIngredient(itemValue)}
-              style={styles.picker}>
-              {ingredients.map((item: string, index: number) => {
-                return <Picker.Item key={index} label={item} value={item} />;
-              })}
-            </Picker>
-          )}
         </Card>
       )}
       {jars && (

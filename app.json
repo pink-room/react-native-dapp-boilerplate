@@ -19,13 +19,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ferreiro.rndapppinkroom"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/peanut_butter.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ferreiro.rndapppinkroom"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

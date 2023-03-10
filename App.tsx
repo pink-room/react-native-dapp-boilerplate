@@ -29,12 +29,13 @@ export default function App() {
   };
 
   const killSession = useCallback(() => {
-    return connector.killSession();
+    connector.killSession();
+    setAccount('NOT CONNECTED');
   }, [connector]);
 
   return (
     <SafeAreaProvider style={styles.container}>
-      {connector.connected && account === 'NOT CONNECTED' ? (
+      {!connector.connected && account === 'NOT CONNECTED' ? (
         <>
           <Image source={require('./assets/images/peanut_butter.png')} />
           <View style={styles.mainContainer}>
