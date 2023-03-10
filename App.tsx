@@ -16,10 +16,10 @@ export default function App() {
   }, [connector]);
 
   useEffect(() => {
-    if (connector.connected && account === 'NOT CONNECTED') {
+    if (connector.accounts != null && connector.accounts[0] != null) {
       setAccount(connector.accounts[0]);
     }
-  }, [connector.connected, account, connector.accounts]);
+  }, [connector]);
 
   const shortenAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(
@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider style={styles.container}>
-      {!connector.connected && (
+      {connector.connected && account === 'NOT CONNECTED' ? (
         <>
           <Image source={require('./assets/images/peanut_butter.png')} />
           <View style={styles.mainContainer}>
@@ -49,8 +49,7 @@ export default function App() {
             </TouchableOpacity>
           </View>
         </>
-      )}
-      {!!connector.connected && (
+      ) : (
         <>
           <View style={styles.connectedContainer}>
             <View>

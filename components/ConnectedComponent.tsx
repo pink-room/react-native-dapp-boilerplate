@@ -40,7 +40,7 @@ const COLORS = [
 ];
 
 const ConnectedComponent = ({account, connector}: OwnProps) => {
-  const [peanutButterContract, setpeanutButterContract] = useState<Contract>();
+  const [peanutButterContract, setPeanutButterContract] = useState<Contract>();
   const [ingredients, setIngredients] = useState<string[]>();
   const [ingredient, setIngredient] = useState('');
   const [jars, setJars] = useState<Jar[]>();
@@ -54,25 +54,10 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
   useEffect(() => {
     async function load() {
       const contract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
-      setpeanutButterContract(contract);
+      setPeanutButterContract(contract);
     }
-
     load();
   }, [web3.eth.Contract]);
-
-  useEffect(() => {
-    async function getIngredients() {
-      const ingredientList = await peanutButterContract?.methods
-        .getExtraIngredients()
-        .call();
-      const aux: string[] = ingredientList.toString().split(',');
-      setIngredients(aux);
-    }
-
-    if (peanutButterContract) {
-      getIngredients();
-    }
-  }, [peanutButterContract]);
 
   const getJars = async () => {
     if (peanutButterContract) {
@@ -91,6 +76,14 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
         });
       setJars(parsedJars);
     }
+  };
+
+  const getIngredients = async () => {
+    const ingredientList = await peanutButterContract?.methods
+      .getExtraIngredients()
+      .call();
+    console.log(ingredientList);
+    setIngredients(ingredientList);
   };
 
   const parseExtraIngredients = (extraIngredients: string) => {
@@ -127,8 +120,8 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
       </Card>
 
       <Card>
-        <TouchableOpacity onPress={createJar} style={styles.jarButton}>
-          <Text style={styles.buttonTextStyle}>Create Jar</Text>
+        <TouchableOpacity onPress={getIngredients} style={styles.jarButton}>
+          <Text style={styles.buttonTextStyle}>Get Ingredients</Text>
         </TouchableOpacity>
 
         {ingredients && (
@@ -142,6 +135,24 @@ const ConnectedComponent = ({account, connector}: OwnProps) => {
           </Picker>
         )}
       </Card>
+      {ingredients != null && ingredients.length !== 0 && (
+        <Card>
+          <TouchableOpacity onPress={createJar} style={styles.jarButton}>
+            <Text style={styles.buttonTextStyle}>Create Jar</Text>
+          </TouchableOpacity>
+
+          {ingredients && (
+            <Picker
+              selectedValue={ingredient}
+              onValueChange={itemValue => setIngredient(itemValue)}
+              style={styles.picker}>
+              {ingredients.map((item: string, index: number) => {
+                return <Picker.Item key={index} label={item} value={item} />;
+              })}
+            </Picker>
+          )}
+        </Card>
+      )}
       {jars && (
         <View style={[styles.jarsView, styles.shadow]}>
           <Text style={styles.buttonTextStyle}>Jars</Text>
